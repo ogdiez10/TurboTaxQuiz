@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Turbotax Quiz</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div id="quiz-container" class="turbotax-quiz">
+      <img id="quiz-image" src="./img/head_image.png" alt="Quiz" width="185" />
+      <!--p class="quiz-title">TurboTax Free Filing</p-->
+      <p id="question-text" class="quiz-question"></p>
+      <div id="question-description"></div>
+      <div id="options-container" class="options"></div>
+      <div id="buttons-container" class="buttons-container">
+        <button id="back-btn" class="secondary-btn" onclick="prevQuestion()">
+          Atrás
+        </button>
+        <button
+          id="next-btn"
+          class="primary-btn"
+          onclick="nextQuestion()"
+          disabled
+        >
+          Siguiente
+        </button>
+      </div>
+      <p id="question-disclaimer" class="disclaimer">
+        *~37% of filers qualify. Simple Form 1040 returns only (no schedules
+        except for Earned Income Tax Credit, Child Tax Credit and Student Loan
+        Interest)
+      </p>
+    </div>
+
+    <script>
+      const questions = [
+      
+        {
+          text: 'Do I Qualify to File with TurboTax for Free?',
+          description: '<p>First, tell us a little about yourself.</p>',
+          type: 'intro',
+          next: 1,
+        },
+        {
+          text: 'Did you file with TurboTax in 2024?',
+          options: ['Yes', 'No'],
+          description: '',
+          type: 'radio',
+          next: { Yes: 2, No: 'end-alt5' },
+        },
+        { //2
+          text: 'Do you operate a self-employed business or do freelance work? <img src="./img/tooltip.svg" class="tooltip" data-show="tooltip2" />',
+          options: ['Yes', 'No'],
+          description:
+            `<p class="tooltipWindow" id="tooltip2">
+              <img src="./img/close.png" class="close" />
+              If you received a 1099-NEC or 1099-K form for income from your business or contract work, answer yes.</p>`,
+          type: 'radio',
+          next: { Yes: 'end', No: 3 },
+        },
+        { //3
+          text: 'Did you get a W-2 form?',
+          options: ['Yes', 'No'],
+          description: '',
+          type: 'radio',
+          next: { Yes: 4, No: 4 },
+        },
+        {  //4
+          text: 'Did you receive unemployment benefits?',
+          options: ['Yes', 'No'],
+          type: 'radio',
+          description: '',
+          next: { Yes: 'end', No: 5 },
+        },
+        {  //5
+          text: 'Do you have investment income and/or receive interest or dividends more than $1,500?',
+          options: ['Yes', 'No'],
+          type: 'radio',
+          description: '',
+          next: { Yes: 'end', No: 6 },
+        },
+        {  //6
+          text: 'Did you receive rental income?',
+          options: ['Yes', 'No'],
+          type: 'radio',
+          description: '',
+          next: { Yes: 'end', No: 7 },
+        },
+        {  //7
+          text: 'Did you have significant expenses for things like mortgage interest, medical bills, or charitable donations that exceed the standard deduction? <img src="./img/tooltip.svg" class="tooltip" data-show="tooltip7" />',
+          options: ['Yes', 'No'],
+          type: 'radio',
+          description: `<div class="tooltipWindow" id="tooltip7">
+              <img src="./img/close.png" class="close" />
+            <table>
+               <thead>
+                <tr>
+                  <th colspan="2">2024</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Single OR Married filing separately</td>
+                  <td>$14,600</td>
+                </tr>
+                <tr>
+                  <td>Married filing jointly OR Surviving spouse</td>
+                  <td>$29,200</td>
+                </tr>
+                <tr>  
+                  <td>Head of household</td>
+                  <td>$21,900</td>
+                </tr>
+              </tbody>
+              </table></div>`,
+          next: { Yes: 'end', No: 8 },
+        },
+        {  //8
+          text: 'Did you pay interest on your student loans?',
+          options: ['Yes', 'No'],
+          type: 'radio',
+          description: '',
+          next: { Yes: 9, No: 9 },
+        },
+        {  //9
+          text: 'Do you have children or dependents that you’re claiming on your return?',
+          options: ['Yes', 'No'],
+          type: 'radio',
+          description: '<p>You can still file for free if you qualify for Earned Income Tax Credit or Child Tax Credit</p>',
+          next: { Yes: 10, No: 10 },
+        },
+        {  //10
+          text: 'If you are in the military, are you active duty or a reservist*? <img src="./img/tooltip.svg" class="tooltip" data-show="tooltip10" />',
+          options: ['Yes', 'No'],
+          type: 'radio',
+          description: `<div class="tooltipWindow" id="tooltip10">
+              <img src="./img/close.png" class="close" />
+              <table>
+               <thead>
+                <tr>
+                  <th colspan="2">2024</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Claiming 0 children, filing as single, head of household, or widowed</td>
+                  <td>Income up to $18,591</td>
+                </tr>
+                <tr>
+                  <td>Claiming 1 child, filing as single, head of household, or widowed</td>
+                  <td>Income up to $49,084</td>
+                </tr>
+                <tr>
+                  <td>Claiming 2 children, filing as single, head of household, or widowed</td>
+                  <td>Income up to $55,768</td>
+                </tr>
+                <tr>
+                  <td>Claiming 3 children, filing as single, head of household, or widowed</td>
+                  <td>Income up to $59,899</td>
+                </tr>
+                <tr>
+                  <td>Claiming 0 children, filing as married filing jointly</td>
+                  <td>Income up to $25,511</td>
+                </tr>
+                <tr>
+                  <td>Claiming 1 child, filing as married filing jointly</label></td>
+                  <td>Income up to $56,004</td>
+                </tr>
+                <tr>
+                  <td>Claiming 2 children, filing as married filing jointly</td>
+                  <td>Income up to $62,688</td>
+                </tr>
+                <tr>
+                  <td>Claiming 3 children, filing as married filing jointly</td>
+                  <td>Income up to $66,819</td>
+                </tr>
+                <tr>
+                  <td>None of these apply to me</td>
+                  <td>-</td>
+                </tr>
+              </tbody>
+              </table></div>`,
+          next: { Yes: 'end-alt6', No: 'end-alt5' },
+        },
+       { 
+          text: 'Based on your answers, you don\'t qualify to file your taxes for free with TurboTax Free Edition, but we can still help you file with ease. You can:',
+          description:
+            '',
+          type: 'end-old',
+        },
+        { 
+          text: 'No. It doesn\'t look like you qualify to file your taxes for free with TurboTax*, but we can still help you file with ease.',
+          description:
+            '*TurboTax Free Edition is only for simple form 1040 returns (no schedules except for Earned Income Tax Credit, Child Tax Credit and Student Loan Interest). Roughly 37% of taxpayers qualify.<br /><br /><a class="button-link primary-btn" href="https://turbotax.intuit.com/personal-taxes/online/">Help me find the right product</a>',
+          type: 'end',
+        },
+        { 
+          text: 'File Your Business Taxes with TurboTax',
+          description:
+            `<p>Get unlimited expert assistance when you file your small business taxes. Our tax experts have extensive knowledge of small business tax requirements and are up to date on all the latest federal, state, and local tax laws.</p>`,
+          type: 'end-alt1',
+        },
+        { 
+          text: 'Do It Yourself',
+          description:
+            `<p>File your own taxes with confidence. As America's #1 tax prep provider, TurboTax makes it quick and easy to get your max refund and 100% accurate calculations—guaranteed.</p>`,
+          type: 'end-alt2',
+        },
+        { 
+          text: 'Get Expert Help',
+          description:
+          `<p>File confidently with experts by your side. TurboTax will guide you through your taxes and give you the deductions and credits you're eligible for.</p>`,
+          type: 'end-alt3',
+        },
+        { 
+          text: 'Have an expert do your taxes',
+          description:
+          `<p>Let a tax expert do your personal taxes for you. You’ll be matched with a tax expert based on your situation who will fully handle everything from start to finish.</p>`,
+          type: 'end-alt4',
+        },
+        { 
+          text: 'File for $0 on the app',
+          description:
+          `<p>Switch to TurboTax! File all tax forms 100% free when you do your own taxes on the TurboTax app by 2/18**.<br/><br/>
+            <a class="text-link tooltip" data-show="tooltipa5" href="#">See offer details</a><br /><br /><a class="button-link primary-btn" href="https://turbotax.smart.link/6xs5rc22s">Download the app</a></p>
+            <div class="tooltipWindow" id="tooltipa5">
+              <img src="./img/close.png" class="close" />
+              Switch to TurboTax and file for $0 when you do your own taxes on the app by 2/18.
+              <ul>
+              <li>This offer is valid only if you didn’t file with TurboTax last year.</li>
+              <li>To qualify, you must start and file your taxes using the TurboTax mobile app.</li>
+              <li>This offer is only available for the “Do it yourself” product. TurboTax Live products are excluded.</li>
+              <li>To redeem offer, taxes must be filed by February 18, 2025.</li>
+              </ul></div>`,
+          type: 'end-alt5',
+        },
+        { 
+          text: 'Join the over 11M customers who file 100% free with TurboTax each year.',
+          description:
+          `<p>With TurboTax Free Edition, you can file with complete confidence and get your maximum refund, guaranteed.
+            <br /><br /><a class="button-link primary-btn" href="https://turbotax.intuit.com/personal-taxes/mobile-apps/turbotax/">Get Started</a><br /><a class="button-link primary-btn alt" href="https://turbotax.intuit.com/personal-taxes/mobile-apps/turbotax/">For Military Members</a></p>`,
+          type: 'end-alt6',
+          
+        }
+      ];
+
+      let currentQuestion = 0;
+      let history = [];
+
+      function showQuestion() {
+        const question = questions[currentQuestion];
+        document.getElementById('question-text').innerHTML = question.text;
+        document.getElementById('question-description').innerHTML =
+          question.description;
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        console.log(question.type)
+        
+        if (question.type === 'intro') {
+          document.getElementById('next-btn').innerText = 'See If I Qualify';
+          document.getElementById('next-btn').disabled = false;
+          document.getElementById('back-btn').classList.add('hidden');
+          document.getElementById('buttons-container').classList.add('one');
+          document.getElementById('options-container').classList.add('hidden');
+          document.getElementById('question-disclaimer').classList.add('hidden');
+          return;
+        } else {
+          document.getElementById('next-btn').innerText = 'Next';
+          document.getElementById('back-btn').classList.remove('hidden');
+          document
+            .getElementById('question-disclaimer')
+            .classList.add('hidden');
+          document.getElementById('buttons-container').classList.remove('one');
+          document
+            .getElementById('options-container')
+            .classList.remove('hidden');
+        }
+
+       
+        if (question.type == 'end') {
+          document.getElementById('options-container').classList.add('hidden');
+          document.getElementById('next-btn').setAttribute('onclick', "");
+          return;
+        
+        } else {
+          document.getElementById('next-btn').classList.remove('hidden');
+          document.getElementById('back-btn').innerText = 'Back';
+        }
+
+        question.options?.forEach((option) => {
+          const input = document.createElement('input');
+          input.type = question.type;
+          input.name = 'question' + currentQuestion;
+          input.value = option;
+          input.addEventListener('change', enableNextButton);
+
+          const label = document.createElement('label');
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(option));
+
+          optionsContainer.appendChild(label);
+        });
+
+        document.getElementById('next-btn').disabled = true;
+      }
+
+      function enableNextButton() {
+        document.getElementById('next-btn').disabled = false;
+      }
+
+      function nextQuestion() {
+        const question = questions[currentQuestion];
+
+        if (question.type === 'intro') {
+          history.push(currentQuestion);
+          currentQuestion = question.next;
+        } else if (question.type.startsWith('end')) {
+          restartQuiz();
+          return;
+        } 
+        else if (question.type.startsWith('final')) {
+          const selectedRadio = document.querySelector('input[name="question11"]:checked');
+          if (selectedRadio) {
+              console.log("Selected Value:", selectedRadio.value);
+              showEndScreen(selectedRadio.value); // Call your function with the value
+          } else {
+              console.log("No option selected.");
+          }
+          return;
+        } 
+        else {
+          const selectedOption = document.querySelector(
+            `input[name="question${currentQuestion}"]:checked`
+          );
+          if (selectedOption && question.next) {
+            history.push(currentQuestion);
+            const next =
+              question.next[selectedOption.value] || currentQuestion + 1;
+
+            if (typeof next === 'string') {
+              showEndScreen(next);
+              return;
+            }
+            currentQuestion = next;
+          } else {
+            history.push(currentQuestion);
+            currentQuestion++;
+          }
+        }
+
+        showQuestion();
+      }
+
+      function prevQuestion() {
+        if (history.length > 0) {
+          currentQuestion = history.pop();
+          showQuestion();
+          document.getElementById('next-btn').setAttribute('onclick', " nextQuestion();");
+        } else {
+          restartQuiz();
+        }
+      }
+
+      function showEndScreen(type) {
+        console.log(type)
+        const endMessage = questions.find((q) => q.type === type)?.text || '';
+        document.getElementById('question-text').innerText = endMessage;
+        //document.getElementById('options-container').innerHTML = '';
+        //document.getElementById('back-btn').classList.add('hidden');
+        //document.getElementById('buttons-container').classList.add('one');
+        document.getElementById('question-description').innerHTML =
+          questions.find((q) => q.type === type)?.description;
+
+        if(type.startsWith('end-alt')){
+        document.getElementById('options-container').innerHTML = '';
+        document.getElementById('back-btn').classList.add('hidden');
+        document.getElementById('buttons-container').classList.add('one');
+        document.getElementById('next-btn').innerText = 'Get Started';
+        document.getElementById('next-btn').setAttribute('onclick', "window.location.href='https://turbotax.intuit.com/personal-taxes/online/'");
+        }
+
+        if(type == 'end'){
+          document.getElementById('next-btn').innerText = 'Reset';
+          document.getElementById('next-btn').setAttribute('onclick', " restartQuiz();");
+          document.getElementById('options-container').classList.add('hidden');
+
+        }
+
+        if(type == 'end-alt5'){
+          document.getElementById('question-disclaimer').classList.add('hidden');
+          document.getElementById('options-container').classList.add('hidden');          
+          document.getElementById('buttons-container').classList.add('hidden');
+
+
+        }
+
+
+
+        if(type == 'end-alt6'){
+          document.getElementById('buttons-container').classList.add('hidden');
+        }
+
+      }
+
+
+      function showResults(option) {
+        console.log(option)
+        const endMessage = questions.find((q) => q.type === type)?.text || '';
+        document.getElementById('question-text').innerText = endMessage;
+        document.getElementById('options-container').innerHTML = '';
+
+        document.getElementById('back-btn').classList.add('hidden');
+        document.getElementById('next-btn').innerText = 'Get Started';
+
+
+        document.getElementById('buttons-container').classList.add('one');
+        document.getElementById('question-description').innerHTML =
+          questions.find((q) => q.type === type)?.description;
+
+        if(type.startsWith('end-alt5')){
+          document.getElementById('question-disclaimer').classList.add('hidden');
+          document.getElementById('options-container').classList.add('hidden');
+          document.getElementById('buttons-container').classList.add('hidden');
+
+          
+        }
+
+
+        if(type == 'end-alt6'){
+          document.getElementById('buttons-container').classList.add('hidden');
+        }
+
+      }
+
+      function restartQuiz() {
+        document.getElementById('next-btn').setAttribute('onclick', " nextQuestion();");
+        currentQuestion = 0;
+        history = [];
+        showQuestion();
+      }
+
+      showQuestion();
+
+
+
+
+      document.addEventListener('click', function(event) {
+    // Click on tooltip icon to toggle its associated tooltip
+    if (event.target.classList.contains('tooltip')) {
+        const tooltipId = event.target.getAttribute('data-show');
+        const tooltipWindow = document.getElementById(tooltipId);
+
+        if (tooltipWindow) {
+            // Close all tooltips first
+            document.querySelectorAll('.tooltipWindow').forEach(t => {
+                if (t !== tooltipWindow) t.classList.remove('show');
+            });
+
+            // Toggle visibility of the selected tooltip
+            tooltipWindow.classList.toggle('show');
+        }
+        event.stopPropagation(); // Prevent click from closing the tooltip immediately
+    } 
+    
+    // Click on close button to hide only its parent tooltip
+    else if (event.target.classList.contains('close')) {
+        event.target.closest('.tooltipWindow').classList.remove('show');
+        event.stopPropagation(); // Prevent immediate re-closing
+    } 
+    
+    // Click outside tooltip area to close all tooltips
+    else {
+        document.querySelectorAll('.tooltipWindow').forEach(t => t.classList.remove('show'));
+    }
+});
+    </script>
+  </body>
+</html>
